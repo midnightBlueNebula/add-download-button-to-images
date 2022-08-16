@@ -11,6 +11,13 @@
 (function() {
     'use strict';
 
+    const canvas = document.createElement("canvas");
+    canvas.style.position = "absolute";
+    canvas.style.left = "0px";
+    canvas.style.top = "-1000px";
+    document.body.appendChild(canvas);
+    const context = canvas.getContext("2d");
+
     const downloader = document.createElement("a");
     downloader.href = "";
     downloader.download = "";
@@ -27,14 +34,23 @@
     function showDownloader(event){
         if(event.target == downloader) { return; }
         if(event.target.tagName.toLowerCase() != "img") { hideDownloader(); return; }
+        const imgRect = event.target.getBoundingClientRect();
+        const image = new Image();
+        image.crossOrigin = "anonymous";
+        image.src = event.target.src;
+        image.onload = function(){
+            context.canvas.width = imgRect.width;
+            context.canvas.height = imgRect.height;
+            context.drawImage(image, 0, 0, imgRect.width, imgRect.height);
+            var imageSrc = canvas.toDataURL("image/jpg");
 
-        const coords = event.target.getBoundingClientRect();
-        downloader.style.left = coords.x + "px";
-        downloader.style.top = coords.y + window.scrollY + "px";
-        downloader.style.width = coords.width + "px";
-        downloader.style.fontSize = "1em";
-        downloader.download = event.target.title ? event.target.title + " - " + new Date() : new Date();
-        downloader.href = event.target.src;
+            downloader.style.left = imgRect.x + "px";
+            downloader.style.top = imgRect.y + window.scrollY + "px";
+            downloader.style.width = imgRect.width + "px";
+            downloader.style.fontSize = "1em";
+            downloader.download = event.target.title ? event.target.title + " - " + new Date() : new Date();
+            downloader.href = imageSrc;
+        }
     }
 
     function hideDownloader(){
