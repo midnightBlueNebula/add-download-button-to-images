@@ -42,7 +42,7 @@
             context.canvas.width = imgRect.width;
             context.canvas.height = imgRect.height;
             context.drawImage(image, 0, 0, imgRect.width, imgRect.height);
-            var imageSrc = canvas.toDataURL("image/jpg");
+            var imageSrc = canvas.toDataURL("image/png");
 
             downloader.style.left = imgRect.x + "px";
             downloader.style.top = imgRect.y + window.scrollY + "px";
