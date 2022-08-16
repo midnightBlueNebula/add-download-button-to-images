@@ -24,7 +24,7 @@
     downloader.style.position = "absolute";
     downloader.style.left = "0px";
     downloader.style.top = "-1000px";
-    downloader.style.zIndex = "1000";
+    downloader.style.zIndex = "10000000";
     downloader.style.color = "white";
     downloader.style.backgroundColor = "black";
     downloader.style.textAlign = "center";
