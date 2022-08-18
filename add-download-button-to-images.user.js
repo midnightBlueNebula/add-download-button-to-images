@@ -40,8 +40,9 @@
         if(event.target.tagName.toLowerCase() != "img") { hideDownloader(); return; }
 
         const imgRect = event.target.getBoundingClientRect();
+        if(imgRect.height < 100) { return; } // prevents adding button to icons.
+        
         const image = new Image();
-
         image.crossOrigin = "anonymous";
         image.src = event.target.src;
         image.onload = function(){
