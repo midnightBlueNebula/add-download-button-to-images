@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Add Download Button to Images
 // @namespace    http://tampermonkey.net/
-// @version      0.6
+// @version      0.7
 // @description  Adds download button to images when cursor moved on an image.
 // @author       midnightBlueNebula
 // @match        https://*/*
@@ -58,7 +58,6 @@
                 imageSrc = canvas.toDataURL("image/jpeg");
             }
 
-
             downloader.style.left = imgRect.x + window.scrollX + "px";
             downloader.style.top = imgRect.y + imgRect.height/2 - downloader.getBoundingClientRect().height/2 + window.scrollY + "px";
             downloader.style.width = imgRect.width + "px";
@@ -96,7 +95,6 @@
                 context.drawImage(image, 0, 0, imgRect.width, imgRect.height);
 
                 downloader.href = canvas.toDataURL("image/jpeg");
-                console.log(image)
                 if(notDownloadedYet() && downloader.href.length/1000 >= 10){
                     downloader.click();
                     downloadMemory[downloader.href] = true;
