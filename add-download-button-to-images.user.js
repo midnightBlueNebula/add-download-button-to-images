@@ -32,9 +32,18 @@
     downloader.innerText = "Download";
     document.body.insertBefore(downloader, document.body.firstChild);
 
+
     function hasSameOrigin(sourceUrl){
         return (new URL(window.location.href).origin == new URL(sourceUrl).origin);
     }
+
+
+    function drawImage(image){
+        context.canvas.width = image.width;
+        context.canvas.height = image.height;
+        context.drawImage(image, 0, 0, image.width, image.height);
+    }
+
 
     function showDownloader(event){
         if(event.target == downloader) { return; }
@@ -51,10 +60,7 @@
             if(hasSameOrigin(image.src)){
               imageSrc = image.src;
             } else {
-                context.canvas.width = imgRect.width;
-                context.canvas.height = imgRect.height;
-                context.drawImage(image, 0, 0, imgRect.width, imgRect.height);
-
+                drawImage(image);
                 imageSrc = canvas.toDataURL("image/jpeg");
             }
 
@@ -88,18 +94,14 @@
         try {
             image.src = currentImg.parentElement.tagName == "A" && currentImg.parentElement.href ? currentImg.parentElement.href : currentImg.src;
             image.onload = function(){
-                document.body.appendChild(image);
-                const imgRect = image.getBoundingClientRect();
-                context.canvas.width = imgRect.width;
-                context.canvas.height = imgRect.height;
-                context.drawImage(image, 0, 0, imgRect.width, imgRect.height);
-
+                drawImage(image);
                 downloader.href = canvas.toDataURL("image/jpeg");
-                if(notDownloadedYet() && downloader.href.length/1000 >= 10){
+                // Download image if it hasn't downloaded yet and its size larger than 10kb.
+                if(notDownloadedYet() && (4*Math.ceil(downloader.href.length/3))/1024 >= 10){
                     downloader.click();
                     downloadMemory[downloader.href] = true;
                 }
-                document.body.removeChild(image);
+
                 downloadAllImages(_images, ++index);
             }
             image.onerror = function(){
