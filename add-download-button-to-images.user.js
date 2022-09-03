@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Add Download Button to Images
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.8
 // @description  Adds download button to images when cursor moved on an image.
 // @author       midnightBlueNebula
 // @match        https://*/*
@@ -14,8 +14,9 @@
 
     const canvas = document.createElement("canvas");
     canvas.style.position = "absolute";
-    canvas.style.left = "0px";
-    canvas.style.top = "-1000px";
+    canvas.style.left = "-10000px";
+    canvas.style.top = "-10000px";
+    canvas.style.zIndex = "-1000";
     document.body.appendChild(canvas);
     const context = canvas.getContext("2d");
 
@@ -23,7 +24,7 @@
     downloader.href = "";
     downloader.download = "";
     downloader.style.position = "absolute";
-    downloader.style.left = "0px";
+    downloader.style.left = "-1000px";
     downloader.style.top = "-1000px";
     downloader.style.zIndex = "10000000";
     downloader.style.color = "white";
@@ -84,7 +85,7 @@
     }
 
     const images = document.querySelectorAll("img");
-    function downloadAllImages(_images = images, index = 0){
+    function downloadAllImages(_images = images, index = 0, assignHref = true){
         if(!images[index]) { return; }
 
         const currentImg = images[index];
@@ -92,12 +93,14 @@
         image.crossOrigin = "anonymous";
 
         try {
-            image.src = currentImg.parentElement.tagName == "A" && currentImg.parentElement.href ? currentImg.parentElement.href : currentImg.src;
+            image.src = assignHref && currentImg.parentElement.tagName == "A" && currentImg.parentElement.href ? currentImg.parentElement.href : currentImg.src;
             image.onload = function(){
                 drawImage(image);
                 downloader.href = canvas.toDataURL("image/jpeg");
-                // Download image if it hasn't downloaded yet and its size larger than 10kb.
-                if(notDownloadedYet() && (4*Math.ceil(downloader.href.length/3))/1024 >= 10){
+                // Download image if it hasn't downloaded yet and its size larger than 25kb (to prevent script from downloading thumbnails).
+                // Calculating size from base64 string's length.
+                const size = 4*(downloader.href.length)/3/1.77803; // 1.77803 added for correction.
+                if(notDownloadedYet() && size >= 25 * 1024){
                     downloader.click();
                     downloadMemory[downloader.href] = true;
                 }
@@ -105,7 +108,11 @@
                 downloadAllImages(_images, ++index);
             }
             image.onerror = function(){
-                downloadAllImages(_images, ++index);
+                if(assignHref && currentImg.parentElement && currentImg.parentElement.href == image.src) {
+                    downloadAllImages(_images, index, false);
+                } else {
+                    downloadAllImages(_images, ++index);
+                }
             }
         } catch {
             downloadAllImages(_images, ++index);
